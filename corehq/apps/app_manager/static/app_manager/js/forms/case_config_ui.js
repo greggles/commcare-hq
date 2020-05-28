@@ -356,6 +356,9 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                     }, self);
 
                     self.case_properties.push(property);
+                    if (self.case_properties().length === 1) {
+                        self.go_to_page(1);
+                    }
                 };
 
                 self.active_case_properties = ko.observableArray();
@@ -363,7 +366,7 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                 self.go_to_page = function (page) {
                     page = page || 1;
                     var props = _.filter(self.case_properties(), function (item) {
-                        return item.path().indexOf(self.case_property_query()) !== -1;
+                        return !item.path() || item.path().indexOf(self.case_property_query()) !== -1;
                     });
                     var skip = self.per_page() * (page - 1);
                     props = props.slice(skip, skip + self.per_page());
@@ -371,7 +374,7 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                 };
                 self.per_page = ko.observable(25);
                 self.total_items = ko.computed(function () {
-                    return self.case_properties().length;
+                    return self.active_case_properties().length;
                 });
                 self.go_to_page(1);
 
@@ -534,7 +537,7 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                 var self = {};
 
                 self.hasPrivilege = true;
-                
+
                 ko.mapping.fromJS(data, userCaseTransaction.mapping(self), self);
                 self.caseConfig = caseConfig;
                 self.case_type = function () {
