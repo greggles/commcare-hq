@@ -1,5 +1,3 @@
-/*globals $, hqDefine, hqImport, ko, _*/
-
 hqDefine('app_manager/js/forms/case_config_ui', function () {
     "use strict";
     $(function () {
@@ -151,7 +149,10 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                 return caseConfigUtils.getAnswers(self.questions(), condition);
             };
 
-            self.change = function () {
+            self.change = function (e) {
+                if ($(e.currentTarget).closest(".ko-pagination")) {
+                    return;
+                }
                 self.saveButton.fire('change');
                 self.ensureBlankProperties();
                 self.forceRefreshTextchangeBinding(self.home);
@@ -186,8 +187,7 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                     if ($home.length) {
                         $home.koApplyBindings(self);
                         $home.on('textchange', 'input', self.change)
-                            // all select2's are represented by an input[type="hidden"]
-                            .on('change', 'select, input[type="hidden"]', self.change)
+                            .on('change', 'select', self.change)
                             .on('click', 'a', self.change);
                         self.ensureBlankProperties();
                         self.forceRefreshTextchangeBinding($home);
@@ -358,7 +358,6 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                     self.case_properties.push(property);
                 };
 
-                // TODO: something is triggering the Save button
                 self.active_case_properties = ko.observableArray();
                 self.case_property_query = ko.observable('');
                 self.go_to_page = function (page) {
