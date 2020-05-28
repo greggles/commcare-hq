@@ -9,6 +9,29 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
             "usercase_update", "usercase_preload",
         ];
 
+        var filterModel = function (itemsObservableArray) {
+            var self = {};
+            self.visible_case_properties = ko.observableArray();
+            self.filtered_case_properties = ko.observableArray();
+            self.case_property_query = ko.observable('');
+            self.go_to_page = function (page) {
+                page = page || 1;
+                var props = _.filter(itemsObservableArray(), function (item) {
+                    return !item.path() || item.path().indexOf(self.case_property_query()) !== -1;
+                });
+                self.filtered_case_properties(props);
+                var skip = self.per_page() * (page - 1);
+                props = props.slice(skip, skip + self.per_page());
+                self.visible_case_properties(props);
+            };
+            self.per_page = ko.observable(25);
+            self.total_items = ko.computed(function () {
+                return self.filtered_case_properties().length;
+            });
+            self.go_to_page(1);
+            return self;
+        };
+
         var caseConfig = function (params) {
             var self = {};
             self.makePopover = function () {
@@ -158,7 +181,10 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                 self.forceRefreshTextchangeBinding(self.home);
             };
 
-            self.usercaseChange = function () {
+            self.usercaseChange = function (e) {
+                if ($(e.currentTarget).closest(".ko-pagination")) {
+                    return;
+                }
                 self.saveUsercaseButton.fire('change');
                 self.caseConfigViewModel.usercase_transaction.ensureBlankProperties();
                 self.forceRefreshTextchangeBinding($('#usercase-config-ko'));
@@ -361,22 +387,7 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                     }
                 };
 
-                self.active_case_properties = ko.observableArray();
-                self.case_property_query = ko.observable('');
-                self.go_to_page = function (page) {
-                    page = page || 1;
-                    var props = _.filter(self.case_properties(), function (item) {
-                        return !item.path() || item.path().indexOf(self.case_property_query()) !== -1;
-                    });
-                    var skip = self.per_page() * (page - 1);
-                    props = props.slice(skip, skip + self.per_page());
-                    self.active_case_properties(props);
-                };
-                self.per_page = ko.observable(25);
-                self.total_items = ko.computed(function () {
-                    return self.active_case_properties().length;
-                });
-                self.go_to_page(1);
+                self.filterModel = filterModel(self.case_properties);
 
                 self.removeProperty = function (property) {
                     if (!self.hasPrivilege) return;
@@ -573,6 +584,8 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                     self.case_properties.push(property);
                     hqImport('analytix/js/google').track.event('Case Management', 'User Case Management', 'Save Properties');
                 };
+
+                self.filterModel = filterModel(self.case_properties);
 
                 self.removeProperty = function (property) {
                     self.case_properties.remove(property);

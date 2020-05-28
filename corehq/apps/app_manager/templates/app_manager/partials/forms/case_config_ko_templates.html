@@ -198,8 +198,8 @@
           {% trans "Save Questions to Case Properties" %}
         </h4>
       </div>
-      <div class="col-sm-4">
-        <!-- ko if: active_case_properties().length -->
+      <div class="col-sm-4" data-bind="with: filterModel">
+        <!-- ko if: $parent.case_properties().length -->
         <search-box class="pull-right"
                       data-apply-bindings="false"
                       params="value: case_property_query,
@@ -226,7 +226,7 @@
       </tr>
       </thead>
 
-      <tbody data-bind="foreach: active_case_properties">
+      <tbody data-bind="foreach: filterModel.visible_case_properties">
       <tr class="form-group"
           data-bind="css: {
                       'has-error': validate,
@@ -287,14 +287,14 @@
       </tr>
       </tbody>
     </table>
-    <!-- ko if: active_case_properties().length -->
+    <div data-bind="visible: case_properties().length, with: filterModel">
       <pagination data-apply-bindings="false"
                   params="goToPage: go_to_page,
                           slug: 'form-case-properties',
                           maxPagesShown: 20,
                           perPage: per_page,
                           totalItems: total_items"></pagination>
-    <!-- /ko -->
+    </div>
     <div class="alert alert-info"
          data-bind="visible: !case_properties().length">
       {% trans "No properties will be saved" %}
