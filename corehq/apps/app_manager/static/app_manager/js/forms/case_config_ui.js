@@ -173,7 +173,7 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
             };
 
             self.change = function (e) {
-                if ($(e.currentTarget).closest(".ko-pagination")) {
+                if ($(e.currentTarget).closest(".ko-pagination").length) {
                     return;
                 }
                 self.saveButton.fire('change');
@@ -382,9 +382,7 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                     }, self);
 
                     self.case_properties.push(property);
-                    if (self.case_properties().length === 1) {
-                        self.go_to_page(1);
-                    }
+                    self.filterModel.visible_case_properties.push(property);
                 };
 
                 self.filterModel = filterModel(self.case_properties);
@@ -581,7 +579,10 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                         required: false,
                     }, self);
 
+                    // TODO: this isn't adding
+                    // TODO: removing isn't working, either
                     self.case_properties.push(property);
+                    self.filterModel.visible_case_properties.push(property);
                     hqImport('analytix/js/google').track.event('Case Management', 'User Case Management', 'Save Properties');
                 };
 
