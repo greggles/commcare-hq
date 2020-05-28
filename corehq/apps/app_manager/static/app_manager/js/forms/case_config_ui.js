@@ -358,6 +358,24 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                     self.case_properties.push(property);
                 };
 
+                // TODO: something is triggering the Save button
+                self.active_case_properties = ko.observableArray();
+                self.case_property_query = ko.observable('');
+                self.go_to_page = function (page) {
+                    page = page || 1;
+                    var props = _.filter(self.case_properties(), function (item) {
+                        return item.path().indexOf(self.case_property_query()) !== -1;
+                    });
+                    var skip = self.per_page() * (page - 1);
+                    props = props.slice(skip, skip + self.per_page());
+                    self.active_case_properties(props);
+                };
+                self.per_page = ko.observable(5);     // TODO: cookie?
+                self.total_items = ko.computed(function () {
+                    return self.case_properties().length;
+                });
+                self.go_to_page(1);
+
                 self.removeProperty = function (property) {
                     if (!self.hasPrivilege) return;
                     hqImport('analytix/js/google').track.event('Case Management', 'Form Level', 'Save Properties (remove)');
