@@ -370,7 +370,7 @@ hqDefine('app_manager/js/forms/case_config_ui', function () {
                     props = props.slice(skip, skip + self.per_page());
                     self.active_case_properties(props);
                 };
-                self.per_page = ko.observable(5);     // TODO: cookie?
+                self.per_page = ko.observable(25);
                 self.total_items = ko.computed(function () {
                     return self.case_properties().length;
                 });
